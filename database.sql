@@ -61,3 +61,5 @@ CREATE TABLE task_tags (
     FOREIGN KEY (task_id) REFERENCES tasks(id),
     FOREIGN KEY (tag_id) REFERENCES tags(id)
 );
+GRANT ALL PRIVILEGES ON project_management.* TO 'nada'@'localhost' IDENTIFIED BY '123456';
+FLUSH PRIVILEGES;

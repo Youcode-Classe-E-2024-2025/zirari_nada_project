@@ -1,25 +1,34 @@
 <?php
+// Constantes pour la configuration de la base de données
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'project_management');
 define('DB_USER', 'nada');
 define('DB_PASS', '123456'); // Mettez votre mot de passe ici si nécessaire
 
-class ConnectionDB {
+class Database {
+    private static $instance = null;
     private $connection;
 
-    public function getConnection() {
-        if ($this->connection === null) {
-            try {
-                $this->connection = new PDO(
-                    'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME,
-                    DB_USER, DB_PASS
-                );
-                $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            } catch (PDOException $e) {
-                die("Connection failed: " . $e->getMessage());
-            }
+    private function __construct() {
+        try {
+            $this->connection = new PDO(
+                'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8',
+                DB_USER, DB_PASS
+            );
+            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            die("Erreur de connexion à la base de données : " . $e->getMessage());
         }
+    }
+
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new Database();
+        }
+        return self::$instance;
+    }
+
+    public function getConnection() {
         return $this->connection;
     }
 }
-?>
