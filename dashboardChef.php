@@ -3,9 +3,11 @@
 require_once 'config.php';
 require_once 'project.php';
 require_once 'task.php';
+require_once 'user.php'; // Assurez-vous d'avoir un fichier pour gérer les utilisateurs
 
 $projectManager = new Project();
 $taskManager = new Task();
+$userManager = new User(); // Gérer les utilisateurs
 
 // Ajouter un projet
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['description'], $_POST['visibility'], $_POST['deadline'], $_POST['created_by'])) {
@@ -32,12 +34,13 @@ if (isset($_GET['delete_id'])) {
 }
 
 // Ajouter une tâche
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['task_title'], $_POST['task_description'], $_POST['task_status'], $_POST['task_project_id'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['task_title'], $_POST['task_description'], $_POST['task_status'], $_POST['task_project_id'], $_POST['assigned_to'])) {
     $taskTitle = htmlspecialchars($_POST['task_title']);
     $taskDescription = htmlspecialchars($_POST['task_description']);
     $taskStatus = htmlspecialchars($_POST['task_status']);
     $taskProjectId = (int)$_POST['task_project_id'];
-    $taskManager->addTask($taskTitle, $taskDescription, $taskStatus, $taskProjectId);
+    $assignedTo = (int)$_POST['assigned_to'];
+    $taskManager->addTask($taskTitle, $taskDescription, $taskStatus, $taskProjectId, $assignedTo);
 
     // Redirection après ajout
     header("Location: dashboardChef.php");
@@ -67,6 +70,9 @@ $query = "
 ";
 $stmt = $pdo->query($query);
 $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Récupérer tous les membres
+$users = $userManager->getAllUsers();
 ?>
 
 <!DOCTYPE html>
@@ -209,6 +215,14 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <option value="pending">En Attente</option>
                         <option value="in_progress">En Cours</option>
                         <option value="completed">Terminée</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="assigned_to" class="block text-gray-700">Assigner à :</label>
+                    <select id="assigned_to" name="assigned_to" class="w-full border border-gray-300 rounded p-2">
+                        <?php foreach ($users as $user): ?>
+                            <option value="<?= $user['id'] ?>"><?= htmlspecialchars($user['name']) ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <input type="hidden" id="task_project_id" name="task_project_id">

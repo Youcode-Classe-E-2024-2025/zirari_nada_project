@@ -11,7 +11,6 @@
 
     <!-- Section gauche -->
     <div class="w-1/2 bg-gray-700 text-gray-200 p-8 flex flex-col justify-center items-center">
-    <img src="images/logo.png" alt="Logo"  class="w-30 h-30 mb-4">
     
       <h1 class="text-3xl font-bold mb-2">Bienvenue sur ToDo</h1>
       <p class="text-center">

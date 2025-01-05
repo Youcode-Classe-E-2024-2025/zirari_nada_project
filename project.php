@@ -32,6 +32,19 @@ class Project
             'id' => $id
         ]);
     }
+    public function getProjectsByVisibility($visibility) {
+        // Se connecter à la base de données
+        $pdo = Database::getInstance()->getConnection();
+
+        // Requête pour récupérer les projets en fonction de leur visibilité
+        $query = "SELECT * FROM projects WHERE visibility = :visibility";
+        $stmt = $pdo->prepare($query);
+        $stmt->bindParam(':visibility', $visibility, PDO::PARAM_STR);
+        $stmt->execute();
+
+        // Retourner les résultats
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     // Supprimer un projet
     public function deleteProject($id)
@@ -39,6 +52,25 @@ class Project
         $sql = "DELETE FROM projects WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
+    }
+    public function getAssignedProjects($userId) {
+        // Se connecter à la base de données
+        $pdo = Database::getInstance()->getConnection();
+    
+        // Requête pour récupérer les projets assignés à l'utilisateur
+        $query = "
+            SELECT p.id, p.name, p.description
+            FROM projects p
+            JOIN tasks t ON p.id = t.project_id
+            WHERE t.assigned_to = :userId
+            GROUP BY p.id;
+        ";
+        $stmt = $pdo->prepare($query);
+        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+    
+        // Retourner les résultats
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Récupérer tous les projets

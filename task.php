@@ -12,20 +12,24 @@ class Task
     }
 
     // Ajouter une tâche
-    public function addTask($name, $description, $assignedTo, $projectId, $categoryId, $tags)
-    {
-        $sql = "INSERT INTO tasks (name, description, assigned_to, project_id, category_id, tags, status) 
-                VALUES (:name, :description, :assigned_to, :project_id, :category_id, :tags, 'pending')";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            'name' => $name,
-            'description' => $description,
-            'assigned_to' => $assignedTo,
-            'project_id' => $projectId,
-            'category_id' => $categoryId,
-            'tags' => $tags
-        ]);
+    public function addTask($title, $description, $status, $projectId, $assignedTo) {
+        $pdo = Database::getInstance()->getConnection();
+
+        // Préparer la requête d'ajout de tâche
+        $query = "
+            INSERT INTO tasks (title, description, status, project_id, assigned_to)
+            VALUES (:title, :description, :status, :project_id, :assigned_to)
+        ";
+        $stmt = $pdo->prepare($query);
+        $stmt->bindParam(':title', $title, PDO::PARAM_STR);
+        $stmt->bindParam(':description', $description, PDO::PARAM_STR);
+        $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+        $stmt->bindParam(':project_id', $projectId, PDO::PARAM_INT);
+        $stmt->bindParam(':assigned_to', $assignedTo, PDO::PARAM_INT);  // Assignation du membre
+
+        $stmt->execute();
     }
+
 
     // Récupérer toutes les tâches d'un projet
     public function getTasksByProject($projectId)
@@ -41,6 +45,24 @@ class Task
     {
         $sql = "SELECT * FROM categories";
         $stmt = $this->pdo->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    public function getTasksByUserId($userId) {
+        // Se connecter à la base de données
+        $pdo = Database::getInstance()->getConnection();
+
+        // Requête pour récupérer les tâches assignées à un utilisateur
+        $query = "
+            SELECT t.id, t.title, t.status, t.project_id
+            FROM tasks t
+            WHERE t.assigned_to = :userId
+            ORDER BY t.status, t.id;
+        ";
+        $stmt = $pdo->prepare($query);
+        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Retourner les résultats
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
