@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['descr
     $projectManager->updateProject($projectId, $name, $description, $visibility, $deadline, $createdBy);
 
     // Redirection après modification
-    header("Location: index.php");
+    header("Location: dashboardChef.php");
     exit;
 }
 
@@ -62,7 +62,7 @@ if (isset($_GET['id'])) {
                 <input type="number" id="created_by" name="created_by" value="<?= htmlspecialchars($project['created_by']) ?>" required class="w-full border border-gray-300 rounded p-2">
             </div>
             <div class="flex justify-end">
-                <button type="button" onclick="window.location.href='index.php'" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mr-2">Annuler</button>
+                <button type="button" onclick="window.location.href='dashboard.php.php'" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mr-2">Annuler</button>
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Sauvegarder</button>
             </div>
         </form>

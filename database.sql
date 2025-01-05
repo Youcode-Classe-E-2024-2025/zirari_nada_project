@@ -63,3 +63,25 @@ CREATE TABLE task_tags (
 );
 GRANT ALL PRIVILEGES ON project_management.* TO 'nada'@'localhost' IDENTIFIED BY '123456';
 FLUSH PRIVILEGES;
+INSERT INTO users (name, email, password, role, created_at)
+VALUES
+('Alice Dupont', 'alice.dupont@example.com', 'hashed_password_1', 'chef', NOW()),
+('Bob Martin', 'bob.martin@example.com', 'hashed_password_2', 'membre', NOW()),
+('Charlie Durand', 'charlie.durand@example.com', 'hashed_password_3', 'invite', NOW());
+INSERT INTO projects (name, description, visibility, deadline, created_by, created_at)
+VALUES
+('Projet A', 'Description du projet A', 'private', '2025-02-28', 1, NOW()),
+('Projet B', 'Description du projet B', 'public', '2025-03-15', 1, NOW()),
+('Projet C', 'Description du projet C', 'private', '2025-04-10', 2, NOW());
+INSERT INTO categories (name, created_at)
+VALUES
+('Développement', NOW()),
+('Design', NOW()),
+('Marketing', NOW());
+INSERT INTO tags (name, created_at)
+VALUES
+('Urgent', NOW()),
+('En cours', NOW()),
+('Terminé', NOW()),
+('Revue', NOW());
+INSERT INTO tasks (project_id, assigned_to, title, description, status, category_id, created_at)

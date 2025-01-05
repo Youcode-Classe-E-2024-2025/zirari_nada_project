@@ -1,15 +1,13 @@
 <?php
 require_once 'config.php';
-
 class Project
 {
     private $pdo;
 
     public function __construct()
     {
-        // Connexion à la base de données (assurez-vous de bien configurer la connexion PDO)
-        $this->pdo = new PDO('mysql:host=localhost;dbname=your_db', 'username', 'password');
-        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        // Utilisation de la classe Database pour obtenir la connexion PDO
+        $this->pdo = Database::getInstance()->getConnection();
     }
 
     // Ajouter un projet
