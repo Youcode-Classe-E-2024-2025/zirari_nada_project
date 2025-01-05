@@ -39,4 +39,5 @@ A Kanban board for each project to track tasks visually
 Drag and drop tasks between columns to update their status
 Installation
 To set up the project locally, follow these steps:
-
+clonev repository: 
+https://github.com/Youcode-Classe-E-2024-2025/zirari_nada_project
