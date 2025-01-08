@@ -91,7 +91,9 @@ $users = $userManager->getAllUsers();
         <button id="openModalBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
             Ajouter un Projet
         </button>
-
+        <div>
+                <a href="logout.php" class="text-black bg-red-500 ml-30 px-4 py-2 rounded hover:text-red-500 transition duration-200">Logout</a>
+            </div>
         <!-- Modal pour ajouter un projet -->
         <div id="addProjectModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
             <div class="bg-white p-6 rounded shadow-md w-1/3">
@@ -176,15 +178,17 @@ $users = $userManager->getAllUsers();
                                 echo $taskStatus ? $taskStatus : 'Aucune tâche assignée';
                                 ?>
                             </td>
-                            <td class="px-4 py-2">
-                                <a href="edit.php?id=<?= $project['id'] ?>" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Modifier</a>
-                                <a href="?delete_id=<?= $project['id'] ?>" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 ml-2" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')">Supprimer</a>
-                                
-                                <!-- Ajouter une tâche -->
-                                <button data-project-id="<?= $project['id'] ?>" class="add-task-btn bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 ml-2">
-                                    Ajouter une Tâche
-                                </button>
-                            </td>
+                            <td class="px-4 py-2 flex items-center space-x-2">
+    <a href="edit.php?id=<?= $project['id'] ?>" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+        Modifier
+    </a>
+    <a href="?delete_id=<?= $project['id'] ?>" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')">
+        Supprimer
+    </a>
+    <button data-project-id="<?= $project['id'] ?>" class="add-task-btn bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+        Ajouter une Tâche
+    </button>
+</td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -217,6 +221,7 @@ $users = $userManager->getAllUsers();
                         <option value="completed">Terminée</option>
                     </select>
                 </div>
+                
                 <div class="mb-4">
                     <label for="assigned_to" class="block text-gray-700">Assigner à :</label>
                     <select id="assigned_to" name="assigned_to" class="w-full border border-gray-300 rounded p-2">

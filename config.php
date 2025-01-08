@@ -2,8 +2,8 @@
 // Constantes pour la configuration de la base de données
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'project_management');
-define('DB_USER', 'nada');
-define('DB_PASS', '123456'); // Mettez votre mot de passe ici si nécessaire
+define('DB_USER', 'root');
+define('DB_PASS', ''); // Mettez votre mot de passe ici si nécessaire
 
 class Database {
     private static $instance = null;

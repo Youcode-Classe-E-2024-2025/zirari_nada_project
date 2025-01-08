@@ -11,6 +11,7 @@ class Task
         $this->pdo = Database::getInstance()->getConnection();
     }
 
+    
     // Ajouter une tâche
     public function addTask($title, $description, $status, $projectId, $assignedTo) {
         $pdo = Database::getInstance()->getConnection();

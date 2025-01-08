@@ -1,3 +1,4 @@
+-- Active: 1733826049669@@127.0.0.1@3306@project_management
 CREATE DATABASE project_management;
 
 USE project_management;
@@ -85,3 +86,7 @@ VALUES
 ('Terminé', NOW()),
 ('Revue', NOW());
 INSERT INTO tasks (project_id, assigned_to, title, description, status, category_id, created_at)
+
+INSERT INTO users (name, email, password, role, created_at)
+VALUES
+('Alice Dupont', 'nada@zirari.com', 'hashed_password_1', 'membre', NOW());

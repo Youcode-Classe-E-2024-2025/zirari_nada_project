@@ -22,6 +22,8 @@
     <div class="w-1/2 p-8">
       <h2 class="text-2xl font-bold text-gray-100 mb-4">Inscription</h2>
       <form id="registerForm" class="space-y-4" action="userController.php" method="POST">
+
+      
         <div>
           <label for="username" class="block text-sm font-medium text-gray-300">Nom d'utilisateur</label>
           <input type="text" id="username" name="username" required
