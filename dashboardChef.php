@@ -4,6 +4,7 @@ require_once 'config.php';
 require_once 'project.php';
 require_once 'task.php';
 require_once 'user.php'; // Assurez-vous d'avoir un fichier pour gérer les utilisateurs
+$progress = 0; // Valeur par défaut pour éviter les erreurs
 
 $projectManager = new Project();
 $taskManager = new Task();
@@ -166,7 +167,7 @@ $users = $userManager->getAllUsers();
                 </form>
             </div>
         </div>
-        <div class="w-full bg-gray-200 rounded">
+        <div class="w-20 ml-80 bg-gray-200 rounded">
     <div class="bg-green-500 text-xs font-medium text-white text-center p-0.5 leading-none rounded" 
          style="width: <?= $progress ?>%">
         <?= round($progress) ?>%
@@ -183,9 +184,10 @@ $users = $userManager->getAllUsers();
     <td><?= htmlspecialchars($project['name']) ?></td>
     <td>
         <?php 
-        $totalTasks = $project['total_tasks'];
-        $completedTasks = $project['completed_tasks'];
+        $totalTasks = isset($project['total_tasks']) ? $project['total_tasks'] : 0;
+        $completedTasks = isset($project['completed_tasks']) ? $project['completed_tasks'] : 0;
         $progress = $totalTasks > 0 ? ($completedTasks / $totalTasks) * 100 : 0;
+        
         ?>
         <div class="w-full bg-gray-200 rounded">
             <div class="bg-green-500 text-xs font-medium text-white text-center p-0.5 leading-none rounded" 
