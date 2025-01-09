@@ -22,6 +22,7 @@ $tasks = $taskManager->getTasksByUserId($userId);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Membre</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 </head>
 <body class="bg-gray-50 font-sans leading-normal tracking-normal">
     <nav class="bg-blue-600 text-white p-4 shadow-md">
@@ -50,42 +51,93 @@ $tasks = $taskManager->getTasksByUserId($userId);
         </div>
         <h2 class="text-3xl font-semibold text-gray-800 mt-8 mb-4">Mes Tâches</h2>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <!-- Section À Faire -->
-            <div class="bg-yellow-100 p-4 rounded shadow hover:shadow-lg transition duration-300">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">À Faire</h3>
-                <ul>
-                    <?php foreach ($tasks as $task): ?>
-                        <?php if ($task['status'] == 'pending'): ?>
-                            <li class="border-b py-2 text-gray-700"><?= htmlspecialchars($task['title']) ?></li>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
+           <!-- Section À Faire -->
+<div id="todo" class="bg-yellow-100 p-4 rounded shadow hover:shadow-lg transition duration-300">
+    <h3 class="text-xl font-semibold text-gray-800 mb-4">À Faire</h3>
+    <ul id="todo-list">
+        <?php foreach ($tasks as $task): ?>
+            <?php if ($task['status'] == 'pending'): ?>
+                <li class="border-b py-2 text-gray-700" data-task-id="<?= $task['id'] ?>"><?= htmlspecialchars($task['title']) ?></li>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </ul>
+</div>
 
-            <!-- Section En Cours -->
-            <div class="bg-blue-100 p-4 rounded shadow hover:shadow-lg transition duration-300">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">En Cours</h3>
-                <ul>
-                    <?php foreach ($tasks as $task): ?>
-                        <?php if ($task['status'] == 'in_progress'): ?>
-                            <li class="border-b py-2 text-gray-700"><?= htmlspecialchars($task['title']) ?></li>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
+<!-- Section En Cours -->
+<div id="in-progress" class="bg-blue-100 p-4 rounded shadow hover:shadow-lg transition duration-300">
+    <h3 class="text-xl font-semibold text-gray-800 mb-4">En Cours</h3>
+    <ul id="in-progress-list">
+        <?php foreach ($tasks as $task): ?>
+            <?php if ($task['status'] == 'in_progress'): ?>
+                <li class="border-b py-2 text-gray-700" data-task-id="<?= $task['id'] ?>"><?= htmlspecialchars($task['title']) ?></li>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </ul>
+</div>
 
-            <!-- Section Terminées -->
-            <div class="bg-green-100 p-4 rounded shadow hover:shadow-lg transition duration-300">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Terminées</h3>
-                <ul>
-                    <?php foreach ($tasks as $task): ?>
-                        <?php if ($task['status'] == 'done'): ?>
-                            <li class="border-b py-2 text-gray-700"><?= htmlspecialchars($task['title']) ?></li>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
+<!-- Section Terminées -->
+<div id="done" class="bg-green-100 p-4 rounded shadow hover:shadow-lg transition duration-300">
+    <h3 class="text-xl font-semibold text-gray-800 mb-4">Terminées</h3>
+    <ul id="done-list">
+        <?php foreach ($tasks as $task): ?>
+            <?php if ($task['status'] == 'done'): ?>
+                <li class="border-b py-2 text-gray-700" data-task-id="<?= $task['id'] ?>"><?= htmlspecialchars($task['title']) ?></li>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </ul>
+</div>
+
         </div>
     </div>
+    <script>
+    // Initialisation de SortableJS pour chaque section
+    const todoList = document.getElementById('todo-list');
+    const inProgressList = document.getElementById('in-progress-list');
+    const doneList = document.getElementById('done-list');
+
+    // Créer des instances de Sortable pour chaque liste
+    new Sortable(todoList, {
+        group: 'tasks', // Permet le déplacement entre les sections
+        animation: 150, // Animation lors du déplacement
+        onEnd: function (evt) {
+            updateTaskStatus(evt.item, 'pending'); // Mise à jour de l'état de la tâche
+        }
+    });
+
+    new Sortable(inProgressList, {
+        group: 'tasks',
+        animation: 150,
+        onEnd: function (evt) {
+            updateTaskStatus(evt.item, 'in_progress');
+        }
+    });
+
+    new Sortable(doneList, {
+        group: 'tasks',
+        animation: 150,
+        onEnd: function (evt) {
+            updateTaskStatus(evt.item, 'done');
+        }
+    });
+
+    // Fonction pour mettre à jour l'état de la tâche dans la base de données
+    function updateTaskStatus(item, newStatus) {
+        const taskId = item.getAttribute('data-task-id');
+
+        // Envoyer la mise à jour au serveur via AJAX
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'update_task_status.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                console.log('Task status updated');
+            }
+        };
+        xhr.send('task_id=' + taskId + '&status=' + newStatus);
+    }
+</script>
+
+    
+
 </body>
 </html>

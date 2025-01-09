@@ -180,23 +180,37 @@ $users = $userManager->getAllUsers();
         <table class="table-auto w-full mt-6 bg-white shadow-md rounded">
             <thead class="bg-gray-200">
             <?php foreach ($projects as $project): ?>
-<tr>
+                <tr>
     <td><?= htmlspecialchars($project['name']) ?></td>
     <td>
         <?php 
         $totalTasks = isset($project['total_tasks']) ? $project['total_tasks'] : 0;
         $completedTasks = isset($project['completed_tasks']) ? $project['completed_tasks'] : 0;
         $progress = $totalTasks > 0 ? ($completedTasks / $totalTasks) * 100 : 0;
-        
+        $progressClass = 'bg-gray-300'; // Par défaut, gris
+
+        if ($progress >= 75) {
+            $progressClass = 'bg-green-500'; // Vert pour 75% ou plus
+        } elseif ($progress >= 50) {
+            $progressClass = 'bg-yellow-500'; // Jaune pour entre 50% et 75%
+        } elseif ($progress > 0) {
+            $progressClass = 'bg-red-500'; // Rouge pour moins de 50%
+        }
         ?>
-        <div class="w-full bg-gray-200 rounded">
-            <div class="bg-green-500 text-xs font-medium text-white text-center p-0.5 leading-none rounded" 
-                 style="width: <?= $progress ?>%">
-                <?= round($progress) ?>%
+        <div class="flex space-x-4"> <!-- Conteneur flex pour aligner les progressions côte à côte -->
+            <div class="w-32 bg-gray-200 rounded">
+                <div class="text-xs font-medium text-white text-center p-0.5 leading-none rounded <?= $progressClass ?>" 
+                    style="width: <?= $progress ?>%">
+                    <?= round($progress) ?>%
+                </div>
+            </div>
+            <div class="text-sm text-gray-600 mt-2">
+                <?= $completedTasks ?> / <?= $totalTasks ?> tâches terminées
             </div>
         </div>
     </td>
 </tr>
+
 <?php endforeach; ?>
 
                 <tr>
