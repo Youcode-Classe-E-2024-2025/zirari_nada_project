@@ -192,7 +192,7 @@ $users = $userManager->getAllUsers();
                         <td class="px-4 py-2"><?= htmlspecialchars($task['project_name']) ?></td>
                         <td class="px-4 py-2"><?= htmlspecialchars($task['task_title']) ?></td>
                         <td>
-                <button class="delete-task" data-id="<?= htmlspecialchars($task['id']) ?>">Supprimer</button>
+                <button class="delete-task" data-id="<?= htmlspecialchars($task['task_id']) ?>">Supprimer</button>
             </td>
                         <td class="px-4 py-2">
                             <?php
@@ -390,12 +390,17 @@ $users = $userManager->getAllUsers();
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+       document.addEventListener('DOMContentLoaded', function () {
     const deleteButtons = document.querySelectorAll('.delete-task');
 
     deleteButtons.forEach(button => {
         button.addEventListener('click', function () {
-            const taskId = this.dataset.id;
+            const taskId = this.dataset.id;  // Récupère l'ID de la tâche depuis l'attribut data-id
+
+            if (!taskId) {
+                alert('ID de tâche manquante.');
+                return;
+            }
 
             if (confirm('Voulez-vous vraiment supprimer cette tâche ?')) {
                 fetch('delete_task.php', {
@@ -403,7 +408,7 @@ $users = $userManager->getAllUsers();
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ task_id: taskId }),
+                    body: JSON.stringify({ task_id: taskId })  // Envoie l'ID de la tâche à supprimer
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -422,8 +427,7 @@ $users = $userManager->getAllUsers();
         });
     });
 });
-
-        // Gestion du modal pour projet
+       // Gestion du modal pour projet
         const openModalBtn = document.getElementById('openModalBtn');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const modal = document.getElementById('addProjectModal');
