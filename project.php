@@ -89,4 +89,21 @@ class Project
         $stmt->execute(['id' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    public function getProjectProgress($projectId)
+{
+    $pdo = Database::getInstance()->getConnection();
+    $query = "
+        SELECT 
+            COUNT(t.id) AS total_tasks,
+            SUM(CASE WHEN t.status = 'completed' THEN 1 ELSE 0 END) AS completed_tasks
+        FROM 
+            tasks t
+        WHERE 
+            t.project_id = :project_id;
+    ";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute(['project_id' => $projectId]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
 }

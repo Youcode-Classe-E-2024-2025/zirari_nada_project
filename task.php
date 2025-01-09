@@ -13,23 +13,21 @@ class Task
 
     
     // Ajouter une tâche
-    public function addTask($title, $description, $status, $projectId, $assignedTo) {
-        $pdo = Database::getInstance()->getConnection();
-
-        // Préparer la requête d'ajout de tâche
+    public function addTask($title, $description, $status, $projectId, $assignedTo, $categoryId) {
         $query = "
-            INSERT INTO tasks (title, description, status, project_id, assigned_to)
-            VALUES (:title, :description, :status, :project_id, :assigned_to)
+            INSERT INTO tasks (title, description, status, project_id, assigned_to, category_id)
+            VALUES (:title, :description, :status, :project_id, :assigned_to, :category_id)
         ";
-        $stmt = $pdo->prepare($query);
+        $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':title', $title, PDO::PARAM_STR);
         $stmt->bindParam(':description', $description, PDO::PARAM_STR);
         $stmt->bindParam(':status', $status, PDO::PARAM_STR);
         $stmt->bindParam(':project_id', $projectId, PDO::PARAM_INT);
-        $stmt->bindParam(':assigned_to', $assignedTo, PDO::PARAM_INT);  // Assignation du membre
-
+        $stmt->bindParam(':assigned_to', $assignedTo, PDO::PARAM_INT);
+        $stmt->bindParam(':category_id', $categoryId, PDO::PARAM_INT); // Nouvelle colonne
         $stmt->execute();
     }
+    
 
 
     // Récupérer toutes les tâches d'un projet

@@ -81,12 +81,35 @@ VALUES
 ('Marketing', NOW());
 INSERT INTO tags (name, created_at)
 VALUES
-('Urgent', NOW()),
-('En cours', NOW()),
-('Terminé', NOW()),
-('Revue', NOW());
+('Bug', NOW()),
+('Feature', NOW()),
+('Tache Simple', NOW());
+
 INSERT INTO tasks (project_id, assigned_to, title, description, status, category_id, created_at)
 
 INSERT INTO users (name, email, password, role, created_at)
 VALUES
 ('Alice Dupont', 'nada@zirari.com', 'hashed_password_1', 'membre', NOW());
+
+SELECT 
+    p.id AS project_id,
+    p.name AS project_name,
+    COUNT(t.id) AS total_tasks,
+    SUM(CASE WHEN t.status = 'completed' THEN 1 ELSE 0 END) AS completed_tasks
+FROM 
+    projects p
+LEFT JOIN 
+    tasks t ON t.project_id = p.id
+GROUP BY 
+    p.id;
+SELECT 
+    p.id AS project_id,
+    p.name AS project_name,
+    COUNT(t.id) AS total_tasks,
+    SUM(CASE WHEN t.status = 'completed' THEN 1 ELSE 0 END) AS completed_tasks
+FROM 
+    projects p
+LEFT JOIN 
+    tasks t ON t.project_id = p.id
+GROUP BY 
+    p.id;

@@ -8,6 +8,23 @@ require_once 'user.php'; // Assurez-vous d'avoir un fichier pour gérer les util
 $projectManager = new Project();
 $taskManager = new Task();
 $userManager = new User(); // Gérer les utilisateurs
+$query = "
+    SELECT 
+        p.id AS project_id,
+        p.name AS project_name,
+        COUNT(t.id) AS total_tasks,
+        SUM(CASE WHEN t.status = 'completed' THEN 1 ELSE 0 END) AS completed_tasks
+    FROM 
+        projects p
+    LEFT JOIN 
+        tasks t ON t.project_id = p.id
+    GROUP BY 
+        p.id
+";
+$pdo = Database::getInstance()->getConnection();
+$stmt = $pdo->prepare($query);
+$stmt->execute();
+$projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Ajouter un projet
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['description'], $_POST['visibility'], $_POST['deadline'], $_POST['created_by'])) {
@@ -32,20 +49,36 @@ if (isset($_GET['delete_id'])) {
     header("Location: dashboardChef.php");
     exit;
 }
-
-// Ajouter une tâche
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['task_title'], $_POST['task_description'], $_POST['task_status'], $_POST['task_project_id'], $_POST['assigned_to'])) {
+//
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['task_title'], $_POST['task_description'], $_POST['task_status'], $_POST['task_project_id'], $_POST['assigned_to'], $_POST['task_category'])) {
     $taskTitle = htmlspecialchars($_POST['task_title']);
     $taskDescription = htmlspecialchars($_POST['task_description']);
     $taskStatus = htmlspecialchars($_POST['task_status']);
     $taskProjectId = (int)$_POST['task_project_id'];
     $assignedTo = (int)$_POST['assigned_to'];
-    $taskManager->addTask($taskTitle, $taskDescription, $taskStatus, $taskProjectId, $assignedTo);
+    $taskCategory = (int)$_POST['task_category']; // Récupération de la catégorie
+
+    // Appel de la méthode avec les 6 arguments
+    $taskManager->addTask($taskTitle, $taskDescription, $taskStatus, $taskProjectId, $assignedTo, $taskCategory);
 
     // Redirection après ajout
     header("Location: dashboardChef.php");
     exit;
 }
+
+// Ajouter une tâche
+// if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['task_title'], $_POST['task_description'], $_POST['task_status'], $_POST['task_project_id'], $_POST['assigned_to'])) {
+//     $taskTitle = htmlspecialchars($_POST['task_title']);
+//     $taskDescription = htmlspecialchars($_POST['task_description']);
+//     $taskStatus = htmlspecialchars($_POST['task_status']);
+//     $taskProjectId = (int)$_POST['task_project_id'];
+//     $assignedTo = (int)$_POST['assigned_to'];
+//     $taskManager->addTask($taskTitle, $taskDescription, $taskStatus, $taskProjectId, $assignedTo);
+
+//     // Redirection après ajout
+//     header("Location: dashboardChef.php");
+//     exit;
+// }
 
 // Supprimer une tâche
 if (isset($_GET['delete_task_id'])) {
@@ -133,10 +166,37 @@ $users = $userManager->getAllUsers();
                 </form>
             </div>
         </div>
+        <div class="w-full bg-gray-200 rounded">
+    <div class="bg-green-500 text-xs font-medium text-white text-center p-0.5 leading-none rounded" 
+         style="width: <?= $progress ?>%">
+        <?= round($progress) ?>%
+    </div>
+</div>
+<a href="project_details.php?project_id=<?= $project['id'] ?>" 
+   class="text-blue-500 underline">Voir les détails</a>
 
         <!-- Tableau des projets -->
         <table class="table-auto w-full mt-6 bg-white shadow-md rounded">
             <thead class="bg-gray-200">
+            <?php foreach ($projects as $project): ?>
+<tr>
+    <td><?= htmlspecialchars($project['name']) ?></td>
+    <td>
+        <?php 
+        $totalTasks = $project['total_tasks'];
+        $completedTasks = $project['completed_tasks'];
+        $progress = $totalTasks > 0 ? ($completedTasks / $totalTasks) * 100 : 0;
+        ?>
+        <div class="w-full bg-gray-200 rounded">
+            <div class="bg-green-500 text-xs font-medium text-white text-center p-0.5 leading-none rounded" 
+                 style="width: <?= $progress ?>%">
+                <?= round($progress) ?>%
+            </div>
+        </div>
+    </td>
+</tr>
+<?php endforeach; ?>
+
                 <tr>
                     <th class="px-4 py-2">ID</th>
                     <th class="px-4 py-2">Nom du Projet</th>
@@ -214,6 +274,15 @@ $users = $userManager->getAllUsers();
                     <textarea id="task_description" name="task_description" rows="4" required class="w-full border border-gray-300 rounded p-2"></textarea>
                 </div>
                 <div class="mb-4">
+    <label for="task_category" class="block text-gray-700">Catégorie :</label>
+    <select id="task_category" name="task_category" class="w-full border border-gray-300 rounded p-2">
+        <?php foreach ($taskManager->getCategories() as $category): ?>
+            <option value="<?= $category['id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
+        <?php endforeach; ?>
+    </select>
+</div>
+
+                <div class="mb-4">
                     <label for="task_status" class="block text-gray-700">État de la Tâche :</label>
                     <select id="task_status" name="task_status" class="w-full border border-gray-300 rounded p-2">
                         <option value="pending">En Attente</option>
@@ -280,7 +349,7 @@ $users = $userManager->getAllUsers();
         closeTaskModalBtn.addEventListener('click', () => {
             addTaskModal.classList.add('hidden');
         });
-
+        
         window.addEventListener('click', (event) => {
             if (event.target === addTaskModal) {
                 addTaskModal.classList.add('hidden');
