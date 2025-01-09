@@ -175,6 +175,67 @@ $users = $userManager->getAllUsers();
 </div>
 <a href="project_details.php?project_id=<?= $project['id'] ?>" 
    class="text-blue-500 underline">Voir les détails</a>
+  <!-- Tableau des progressions des tâches -->
+  <h2 class="text-xl font-bold mt-6 mb-4">Progression des Tâches</h2>
+        <table class="table-auto w-full mt-4 bg-white shadow-md rounded">
+            <thead class="bg-gray-200">
+                <tr>
+                    <th class="px-4 py-2">Nom du Projet</th>
+                    <th class="px-4 py-2">Titre de la Tâche</th>
+                    <th class="px-4 py-2">État de la Tâche</th>
+                    <th class="px-4 py-2">Progression</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($tasks as $task): ?>
+                    <tr class="border-t">
+                        <td class="px-4 py-2"><?= htmlspecialchars($task['project_name']) ?></td>
+                        <td class="px-4 py-2"><?= htmlspecialchars($task['task_title']) ?></td>
+                        <td>
+                <button class="delete-task" data-id="<?= htmlspecialchars($task['id']) ?>">Supprimer</button>
+            </td>
+                        <td class="px-4 py-2">
+                            <?php
+                            // Afficher l'état de la tâche
+                            switch ($task['task_status']) {
+                                case 'pending':
+                                    echo '<span class="text-yellow-500">En Attente</span>';
+                                    break;
+                                case 'in_progress':
+                                    echo '<span class="text-blue-500">En Cours</span>';
+                                    break;
+                                case 'completed':
+                                    echo '<span class="text-green-500">Terminée</span>';
+                                    break;
+                                default:
+                                    echo 'Inconnu';
+                                    break;
+                            }
+                            ?>
+                        </td>
+                        <td class="px-4 py-2">
+                            <?php
+                            // Calcul de la progression (par exemple, en fonction de l'état de la tâche)
+                            $progress = 0;
+                            if ($task['task_status'] === 'completed') {
+                                $progress = 100;
+                            } elseif ($task['task_status'] === 'in_progress') {
+                                $progress = 50; // Valeur approximative
+                            } else {
+                                $progress = 0;
+                            }
+                            ?>
+                            <div class="w-32 bg-gray-200 rounded">
+                                <div class="text-xs font-medium text-white text-center p-0.5 leading-none rounded bg-green-500" 
+                                     style="width: <?= $progress ?>%">
+                                    <?= $progress ?>%
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
 
         <!-- Tableau des projets -->
         <table class="table-auto w-full mt-6 bg-white shadow-md rounded">
@@ -329,6 +390,39 @@ $users = $userManager->getAllUsers();
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+    const deleteButtons = document.querySelectorAll('.delete-task');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const taskId = this.dataset.id;
+
+            if (confirm('Voulez-vous vraiment supprimer cette tâche ?')) {
+                fetch('delete_task.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ task_id: taskId }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload(); // Recharge la page pour mettre à jour la liste
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur :', error);
+                    alert('Une erreur est survenue.');
+                });
+            }
+        });
+    });
+});
+
         // Gestion du modal pour projet
         const openModalBtn = document.getElementById('openModalBtn');
         const closeModalBtn = document.getElementById('closeModalBtn');

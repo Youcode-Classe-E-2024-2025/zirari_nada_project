@@ -65,6 +65,15 @@ class Task
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function deleteTask($taskId)
+{
+    $pdo = Database::getInstance()->getConnection();
+    $query = "DELETE FROM tasks WHERE id = :id";
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':id', $taskId, PDO::PARAM_INT);
+    return $stmt->execute();
+}
+
     // Récupérer toutes les tâches
     public function getAllTasks()
     {
