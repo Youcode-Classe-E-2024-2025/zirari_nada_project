@@ -1,23 +1,33 @@
 <?php
 require_once 'config.php'; // Connexion à la base de données
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $taskId = $_POST['task_id'] ?? null;
+// Récupérer l'instance de la base de données
+$pdo = Database::getInstance()->getConnection();
 
-    if ($taskId) {
-        try {
-            $query = "DELETE FROM tasks WHERE id = :task_id";
-            $stmt = $pdo->prepare($query);
-            $stmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
-            if ($stmt->execute()) {
-                echo json_encode(['success' => true, 'message' => 'Tâche supprimée avec succès.']);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Erreur lors de la suppression de la tâche.']);
-            }
-        } catch (Exception $e) {
-            echo json_encode(['success' => false, 'message' => 'Erreur : ' . $e->getMessage()]);
+// Vérifier si l'ID de la tâche est passé dans l'URL
+$taskId = $_GET['task_id'] ?? null;
+
+if ($taskId) {
+    try {
+        // Préparer la requête pour supprimer la tâche
+        $query = "DELETE FROM tasks WHERE id = :task_id";
+        $stmt = $pdo->prepare($query);
+        $stmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
+        
+        // Exécuter la requête
+        if ($stmt->execute()) {
+            header('Location: dashboardChef.php?message=Tâche supprimée avec succès');
+            exit;
+        } else {
+            header('Location: dashboardChef.php?message=Erreur lors de la suppression de la tâche');
+            exit;
         }
-    } else {
-        echo json_encode(['success' => false, 'message' => 'ID de tâche manquant.']);
+    } catch (Exception $e) {
+        header('Location: dashboardChef.php?message=Erreur : ' . $e->getMessage());
+        exit;
     }
+} else {
+    header('Location: dashboardChef.php?message=ID de tâche manquant');
+    exit;
 }
+

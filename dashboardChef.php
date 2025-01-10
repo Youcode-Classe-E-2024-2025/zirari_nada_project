@@ -198,9 +198,6 @@ $users = $userManager->getAllUsers();
         </div>
       
 
-
-<a href="project_details.php?project_id=<?= htmlspecialchars( $project['id'] )?>" 
-   class="text-blue-500 underline">Voir les détails</a>
   <!-- Tableau des progressions des tâches -->
   <h2 class="text-xl font-bold mt-6 mb-4">Progression des Tâches</h2>
         <table class="table-auto w-full mt-4 bg-blue-100 shadow-md rounded">
@@ -211,59 +208,53 @@ $users = $userManager->getAllUsers();
                     
                     <th class="px-4 py-2">État de la Tâche</th>
                     <th class="px-4 py-2">Progression</th>
-                    <th class="px-4 py-2">Supprimer Tâche</th>
+                   
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($tasks as $task): ?>
-                    <tr class="border-t">
-                        <td class="px-4 py-2"><?= htmlspecialchars($task['project_name']) ?></td>
-                        <td class="px-4 py-2"><?= htmlspecialchars($task['task_title']) ?></td>
-                      
-                        <td class="px-4 py-2">
-                            <?php
-                            // Afficher l'état de la tâche
-                            switch ($task['task_status']) {
-                                case 'pending':
-                                    echo '<span class="text-yellow-500">En Attente</span>';
-                                    break;
-                                case 'in_progress':
-                                    echo '<span class="text-blue-500">En Cours</span>';
-                                    break;
-                                case 'completed':
-                                    echo '<span class="text-green-500">Terminée</span>';
-                                    break;
-                                default:
-                                    echo 'Inconnu';
-                                    break;
-                            }
-                            ?>
-                        </td>
-                        <td class="px-4 py-2">
-                            <?php
-                            // Calcul de la progression (par exemple, en fonction de l'état de la tâche)
-                            $progress = 0;
-                            if ($task['task_status'] === 'completed') {
-                                $progress = 100;
-                            } elseif ($task['task_status'] === 'in_progress') {
-                                $progress = 50; // Valeur approximative
-                            } else {
-                                $progress = 0;
-                            }
-                            ?>
-                            <div class="w-32 bg-gray-400 rounded">
-                                <div class="text-xs font-medium text-white text-center p-0.5 leading-none rounded bg-green-500" 
-                                     style="width: <?= $progress ?>%">
-                                    <?= $progress ?>%
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-4 py-2">
-        <button class="delete-task bg-red-400 rounded px-1 py-1" data-id="<?= htmlspecialchars($task['task_id']) ?>">Supprimer</button>
-    </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
+    <?php foreach ($tasks as $task): ?>
+        <tr class="border-t task-item"> <!-- Ajout de la classe task-item -->
+            <td class="px-4 py-2"><?= htmlspecialchars($task['project_name']) ?></td>
+            <td class="px-4 py-2"><?= htmlspecialchars($task['task_title']) ?></td>
+            <td class="px-4 py-2">
+                <?php
+                switch ($task['task_status']) {
+                    case 'pending':
+                        echo '<span class="text-yellow-500">En Attente</span>';
+                        break;
+                    case 'in_progress':
+                        echo '<span class="text-blue-500">En Cours</span>';
+                        break;
+                    case 'completed':
+                        echo '<span class="text-green-500">Terminée</span>';
+                        break;
+                    default:
+                        echo 'Inconnu';
+                        break;
+                }
+                ?>
+            </td>
+            <td class="px-4 py-2">
+                <?php
+                $progress = 0;
+                if ($task['task_status'] === 'completed') {
+                    $progress = 100;
+                } elseif ($task['task_status'] === 'in_progress') {
+                    $progress = 50;
+                }
+                ?>
+                <div class="w-32 bg-gray-400 rounded">
+                    <div class="text-xs font-medium text-white text-center p-0.5 leading-none rounded bg-green-500" 
+                         style="width: <?= $progress ?>%">
+                        <?= $progress ?>%
+                    </div>
+                </div>
+            </td>
+           
+        </tr>
+    <?php endforeach; ?>
+</tbody>
+
         </table>
 
         <!-- Tableau des projets -->
@@ -283,58 +274,57 @@ $users = $userManager->getAllUsers();
                 </tr>
             </thead>
             <tbody>
-                <?php if (!empty($projects)): ?>
-                    <?php foreach ($projects as $project): ?>
-                        <tr class="border-t">
-                            <td class="px-4 py-2"><?= htmlspecialchars($project['id']) ?></td>
-                            <td class="px-4 py-2"><?= htmlspecialchars($project['name']) ?></td>
-                            <td class="px-4 py-2"><?= htmlspecialchars($project['description']) ?></td>
-                            <td class="px-4 py-2"><?= htmlspecialchars($project['created_at']) ?></td>
-                            <td class="px-4 py-2">
-                                <?php
-                                // Afficher l'état des tâches pour ce projet
-                                $taskStatus = '';
-                                foreach ($tasks as $task) {
-                                    if ($task['project_id'] == $project['id']) {
-                                        $statusClass = '';
-                                        switch ($task['task_status']) {
-                                            case 'pending':
-                                                $statusClass = 'text-yellow-500';
-                                                break;
-                                            case 'in_progress':
-                                                $statusClass = 'text-blue-500';
-                                                break;
-                                            case 'completed':
-                                                $statusClass = 'text-green-500';
-                                                break;
-                                        }
-                                        $taskStatus .= '<span class="block ' . $statusClass . '">' . htmlspecialchars($task['task_title']) . ' - ' . ucfirst(htmlspecialchars($task['task_status'])) . '</span>';
-                                    }
-                                }
-                                echo $taskStatus ? $taskStatus : 'Aucune tâche assignée';
-                                ?>
-                            </td>
-                            <td class="px-4 py-2 flex items-center space-x-2">
-                            <button 
-                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" 
-                            onclick="openModal(<?= htmlspecialchars(json_encode($project)) ?>)">
-                            Modifier
-                        </button>
-    <a href="?delete_id=<?= $project['id'] ?>" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')">
-        Supprimer
-    </a>
-    <button data-project-id="<?= $project['id'] ?>" class="add-task-btn bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-        Ajouter une Tâche
-    </button>
-</td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="6" class="px-4 py-2 text-center">Aucun projet trouvé.</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
+    <?php if (!empty($projects)): ?>
+        <?php foreach ($projects as $project): ?>
+            <tr class="border-t">
+                <td class="px-4 py-2"><?= htmlspecialchars($project['id']) ?></td>
+                <td class="px-4 py-2"><?= htmlspecialchars($project['name']) ?></td>
+                <td class="px-4 py-2"><?= htmlspecialchars($project['description']) ?></td>
+                <td class="px-4 py-2"><?= htmlspecialchars($project['created_at']) ?></td>
+                <td class="px-4 py-2">
+                    <?php
+                    // Afficher l'état des tâches pour ce projet
+                    $taskStatus = '';
+                    foreach ($tasks as $task) {
+                        if ($task['project_id'] == $project['id']) {
+                            $statusClass = '';
+                            switch ($task['task_status']) {
+                                case 'pending':
+                                    $statusClass = 'text-yellow-500';
+                                    break;
+                                case 'in_progress':
+                                    $statusClass = 'text-blue-500';
+                                    break;
+                                case 'completed':
+                                    $statusClass = 'text-green-500';
+                                    break;
+                            }
+                            $taskStatus .= '<span class="block ' . $statusClass . '">' . htmlspecialchars($task['task_title']) . ' - ' . ucfirst(htmlspecialchars($task['task_status'])) . ' <a href="delete_task.php?task_id=' . $task['task_id'] . '" class="text-red-500 hover:text-red-700 font-bold" onclick="return confirm(\'Voulez-vous vraiment supprimer cette tâche ?\')">Supprimer </a></span>';
+                        }
+                    }
+                    echo $taskStatus ? $taskStatus : 'Aucune tâche assignée';
+                    ?>
+                </td>
+                <td class="px-4 py-2 flex items-center space-x-2">
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onclick="openModal(<?= htmlspecialchars(json_encode($project)) ?>)">
+                        Modifier
+                    </button>
+                    <a href="?delete_id=<?= $project['id'] ?>" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')">
+                        Supprimer
+                    </a>
+                    <button data-project-id="<?= $project['id'] ?>" class="add-task-btn bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                        Ajouter une Tâche
+                    </button>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="6" class="px-4 py-2 text-center">Aucun projet trouvé.</td>
+        </tr>
+    <?php endif; ?>
+</tbody>
+
         </table>
     </div>
 
@@ -427,44 +417,7 @@ $users = $userManager->getAllUsers();
         </div>
     </div>
     <script>
-   document.querySelectorAll('.delete-task').forEach(button => {
-    button.addEventListener('click', function () {
-        const taskId = this.dataset.id; // Récupération de l'ID de tâche
-
-        if (!taskId) {
-            alert('ID de tâche manquant.');
-            return;
-        }
-
-        if (confirm('Voulez-vous vraiment supprimer cette tâche ?')) {
-            fetch('delete_task.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ task_id: taskId })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erreur réseau.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                alert(data.message);
-                if (data.success) {
-                    this.closest('.task-item').remove(); // Supprime l'élément correspondant
-                }
-            })
-            .catch(error => {
-                console.error('Erreur :', error);
-                alert('Une erreur est survenue. Veuillez réessayer plus tard.');
-            });
-        }
-    });
-});
-
-
+    
        // Gestion du modal pour projet
         const openModalBtn = document.getElementById('openModalBtn');
         const closeModalBtn = document.getElementById('closeModalBtn');
