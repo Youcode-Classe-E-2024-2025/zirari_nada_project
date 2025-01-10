@@ -46,15 +46,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['descr
     $name = htmlspecialchars($_POST['name']);
     $description = htmlspecialchars($_POST['description']);
     $visibility = htmlspecialchars($_POST['visibility']);
-    $deadline = !empty($_POST['deadline']) ? $_POST['deadline'] : null;
-    $created_by = !empty($_POST['created_by']) ? (int)$_POST['created_by'] : null;
-
+    $deadline = $_POST['deadline'];
+    $created_by = (int)$_POST['created_by'];
     $projectManager->addProject($name, $description, $visibility, $deadline, $created_by);
 
     // Redirection après ajout
     header("Location: dashboardChef.php");
     exit;
 }
+
 // Supprimer un projet
 if (isset($_GET['delete_id'])) {
     $deleteId = (int)$_GET['delete_id'];
@@ -131,17 +131,22 @@ $users = $userManager->getAllUsers();
     <title>Dashboard - Chef de Projet</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-6">
+<body class="bg-gray-500 p-6">
     <div class="container mx-auto">
-        <h1 class="text-2xl font-bold mb-4">Tableau de Bord - Chef de Projet</h1>
+    <div class="bg-black text-white p-6 rounded-lg shadow-lg flex items-center">
+    
+    <h1 class="text-3xl font-extrabold">Tableau de Bord - Chef de Projet</h1>
+    <div>
+                <a href="logout.php" class="text-black bg-red-500 ml-30  m-20 px-4 py-2 rounded hover:bg-red-800 transition duration-200">Logout</a>
+            </div>
+</div>
+
 
         <!-- Formulaire pour ajouter un projet -->
-        <button id="openModalBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        <button id="openModalBtn" class="bg-green-600  m-10 ml-10 text-white px-5 py-2 rounded hover:bg-blue-600">
             Ajouter un Projet
         </button>
-        <div>
-                <a href="logout.php" class="text-black bg-red-500 ml-30 px-4 py-2 rounded hover:text-red-500 transition duration-200">Logout</a>
-            </div>
+        
         <!-- Modal pour ajouter un projet -->
         <div id="addProjectModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
             <div class="bg-white p-6 rounded shadow-md w-1/3">
@@ -188,13 +193,15 @@ $users = $userManager->getAllUsers();
    class="text-blue-500 underline">Voir les détails</a>
   <!-- Tableau des progressions des tâches -->
   <h2 class="text-xl font-bold mt-6 mb-4">Progression des Tâches</h2>
-        <table class="table-auto w-full mt-4 bg-white shadow-md rounded">
-            <thead class="bg-gray-200">
+        <table class="table-auto w-full mt-4 bg-blue-100 shadow-md rounded">
+            <thead class="bg-gray-400">
                 <tr>
                     <th class="px-4 py-2">Nom du Projet</th>
                     <th class="px-4 py-2">Titre de la Tâche</th>
+                    
                     <th class="px-4 py-2">État de la Tâche</th>
                     <th class="px-4 py-2">Progression</th>
+                    <th class="px-4 py-2">Supprimer Tâche</th>
                 </tr>
             </thead>
             <tbody>
@@ -202,9 +209,7 @@ $users = $userManager->getAllUsers();
                     <tr class="border-t">
                         <td class="px-4 py-2"><?= htmlspecialchars($task['project_name']) ?></td>
                         <td class="px-4 py-2"><?= htmlspecialchars($task['task_title']) ?></td>
-                        <td>
-                <button class="delete-task" data-id="<?= htmlspecialchars($task['task_id']) ?>">Supprimer</button>
-            </td>
+                      
                         <td class="px-4 py-2">
                             <?php
                             // Afficher l'état de la tâche
@@ -236,13 +241,16 @@ $users = $userManager->getAllUsers();
                                 $progress = 0;
                             }
                             ?>
-                            <div class="w-32 bg-gray-200 rounded">
+                            <div class="w-32 bg-gray-400 rounded">
                                 <div class="text-xs font-medium text-white text-center p-0.5 leading-none rounded bg-green-500" 
                                      style="width: <?= $progress ?>%">
                                     <?= $progress ?>%
                                 </div>
                             </div>
                         </td>
+                        <td class="px-4 py-2">
+                <button class="delete-task bg-red-400 rounded px-1 py-1" data-id="<?= htmlspecialchars($task['task_id']) ?>">Supprimer</button>
+            </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -328,10 +336,10 @@ $users = $userManager->getAllUsers();
                             </td>
                             <td class="px-4 py-2 flex items-center space-x-2">
                             <button 
-    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" 
-    onclick="openModal(<?= htmlspecialchars(json_encode($project)) ?>)">
-    Modifier
-</button>
+                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" 
+                            onclick="openModal(<?= htmlspecialchars(json_encode($project)) ?>)">
+                            Modifier
+                        </button>
     <a href="?delete_id=<?= $project['id'] ?>" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')">
         Supprimer
     </a>
@@ -382,13 +390,14 @@ $users = $userManager->getAllUsers();
                 </div>
                 
                 <div class="mb-4">
-                    <label for="assigned_to" class="block text-gray-700">Assigner à :</label>
-                    <select id="assigned_to" name="assigned_to" class="w-full border border-gray-300 rounded p-2">
-                        <?php foreach ($users as $user): ?>
-                            <option value="<?= $user['id'] ?>"><?= htmlspecialchars($user['name']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <label for="assigned_to" class="block text-gray-700">Assigner à :</label>
+        <select id="assigned_to" name="assigned_to" class="w-full border border-gray-300 rounded p-2">
+            <?php foreach ($users as $user): ?>
+                <option value="<?= $user['id'] ?>"><?= htmlspecialchars($user['name']) ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+
                 <input type="hidden" id="task_project_id" name="task_project_id">
                 <div class="flex justify-end">
                     <button type="button" id="closeTaskModalBtn" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mr-2">
@@ -519,15 +528,14 @@ $users = $userManager->getAllUsers();
         });
 
         function openModal(project) {
-    document.getElementById('editModal').classList.remove('hidden');
-    document.getElementById('project_id').value = project.id || '';
-    document.getElementById('name').value = project.name ;
-    document.getElementById('description').value = project.description || '';
-    document.getElementById('visibility').value = project.visibility || 'private';
-    document.getElementById('deadline').value = project.deadline || '';
-    document.getElementById('created_by').value = project.created_by || '';
-}
-
+            document.getElementById('editModal').classList.remove('hidden');
+            document.getElementById('project_id').value = project.id;
+            document.getElementById('name').value = project.name;
+            document.getElementById('description').value = project.description;
+            document.getElementById('visibility').value = project.visibility;
+            document.getElementById('deadline').value = project.deadline;
+            document.getElementById('created_by').value = project.created_by;
+        }
 
         function closeModal() {
             document.getElementById('editModal').classList.add('hidden');

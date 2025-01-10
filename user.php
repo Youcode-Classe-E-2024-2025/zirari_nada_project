@@ -41,7 +41,12 @@ class User {
             'email' => $email
         ]);
     }
-
+    public function getMemberUsers()
+    {
+        $sql = "SELECT id, name FROM users WHERE role = 'membre'";
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     // Supprimer un utilisateur
     public function deleteUser($id) {
         $stmt = $this->pdo->prepare("DELETE FROM users WHERE id = :id");

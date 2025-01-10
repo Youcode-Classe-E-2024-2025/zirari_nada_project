@@ -83,10 +83,11 @@ class Project
     // Récupérer tous les projets
     public function getAllProjects()
     {
-        $sql = "SELECT * FROM projects";
+        $sql = "SELECT id, name, description, visibility, deadline, created_by, created_at FROM projects";
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+   
 
     // Récupérer un projet par son ID
     public function getProjectById($id)
