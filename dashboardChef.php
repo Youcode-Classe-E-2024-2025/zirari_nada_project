@@ -46,15 +46,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['descr
     $name = htmlspecialchars($_POST['name']);
     $description = htmlspecialchars($_POST['description']);
     $visibility = htmlspecialchars($_POST['visibility']);
-    $deadline = $_POST['deadline'];
-    $created_by = (int)$_POST['created_by'];
+    $deadline = !empty($_POST['deadline']) ? $_POST['deadline'] : null;
+    $created_by = !empty($_POST['created_by']) ? (int)$_POST['created_by'] : null;
+
     $projectManager->addProject($name, $description, $visibility, $deadline, $created_by);
 
     // Redirection après ajout
     header("Location: dashboardChef.php");
     exit;
 }
-
 // Supprimer un projet
 if (isset($_GET['delete_id'])) {
     $deleteId = (int)$_GET['delete_id'];

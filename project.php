@@ -11,12 +11,19 @@ class Project
     }
 
     // Ajouter un projet
-    public function addProject($name, $description)
-    {
-        $sql = "INSERT INTO projects (name, description, created_at) VALUES (:name, :description, NOW())";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['name' => $name, 'description' => $description]);
-    }
+    public function addProject($name, $description, $visibility, $deadline, $createdBy)
+{
+    $sql = "INSERT INTO projects (name, description, visibility, deadline, created_by, created_at) 
+            VALUES (:name, :description, :visibility, :deadline, :created_by, NOW())";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([
+        'name' => $name,
+        'description' => $description,
+        'visibility' => $visibility,
+        'deadline' => $deadline,
+        'created_by' => $createdBy
+    ]);
+}
 
     // Modifier un projet
     public function updateProject($id, $name, $description, $visibility, $deadline, $createdBy)
