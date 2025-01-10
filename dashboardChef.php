@@ -447,43 +447,38 @@ $users = $userManager->getAllUsers();
         </div>
     </div>
     <script>
-       document.addEventListener('DOMContentLoaded', function () {
-    const deleteButtons = document.querySelectorAll('.delete-task');
+      document.querySelectorAll('.delete-task').forEach(button => {
+    button.addEventListener('click', function () {
+        const taskId = this.dataset.id; // Assurez-vous que l'attribut data-id existe
 
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const taskId = this.dataset.id;  // Récupère l'ID de la tâche depuis l'attribut data-id
+        if (!taskId) {
+            alert('ID de tâche manquant.');
+            return;
+        }
 
-            if (!taskId) {
-                alert('ID de tâche manquante.');
-                return;
-            }
-
-            if (confirm('Voulez-vous vraiment supprimer cette tâche ?')) {
-                fetch('delete_task.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ task_id: taskId })  // Envoie l'ID de la tâche à supprimer
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload(); // Recharge la page pour mettre à jour la liste
-                    } else {
-                        alert(data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur :', error);
-                    alert('Une erreur est survenue.');
-                });
-            }
-        });
+        if (confirm('Voulez-vous vraiment supprimer cette tâche ?')) {
+            fetch('delete_task.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ task_id: taskId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.success) {
+                    this.closest('.task-item').remove(); // Supprime l'élément correspondant
+                }
+            })
+            .catch(error => {
+                console.error('Erreur :', error);
+                alert('Une erreur est survenue.');
+            });
+        }
     });
 });
+
        // Gestion du modal pour projet
         const openModalBtn = document.getElementById('openModalBtn');
         const closeModalBtn = document.getElementById('closeModalBtn');
