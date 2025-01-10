@@ -58,12 +58,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['descr
 // Supprimer un projet
 if (isset($_GET['delete_id'])) {
     $deleteId = (int)$_GET['delete_id'];
+
+    // Vérifier si le projet contient des tâches
+    if ($projectManager->hasTasks($deleteId)) {
+        // Rediriger vers la page d'erreur si des tâches sont associées au projet
+        header("Location: error404.php");
+        exit;
+    }
+
+    // Supprimer le projet s'il n'a pas de tâches
     $projectManager->deleteProject($deleteId);
 
     // Redirection après suppression
     header("Location: dashboardChef.php");
     exit;
 }
+
 //
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['task_title'], $_POST['task_description'], $_POST['task_status'], $_POST['task_project_id'], $_POST['assigned_to'], $_POST['task_category'])) {
     $taskTitle = htmlspecialchars($_POST['task_title']);
@@ -259,39 +269,9 @@ $users = $userManager->getAllUsers();
         <!-- Tableau des projets -->
         <table class="table-auto w-full mt-6 bg-white shadow-md rounded">
             <thead class="bg-gray-200">
-            <?php foreach ($projects as $project): ?>
-                <tr>
-    <td><?= htmlspecialchars($project['name']) ?></td>
-    <td>
-        <?php 
-        $totalTasks = isset($project['total_tasks']) ? $project['total_tasks'] : 0;
-        $completedTasks = isset($project['completed_tasks']) ? $project['completed_tasks'] : 0;
-        $progress = $totalTasks > 0 ? ($completedTasks / $totalTasks) * 100 : 0;
-        $progressClass = 'bg-gray-300'; // Par défaut, gris
+           
 
-        if ($progress >= 75) {
-            $progressClass = 'bg-green-500'; // Vert pour 75% ou plus
-        } elseif ($progress >= 50) {
-            $progressClass = 'bg-yellow-500'; // Jaune pour entre 50% et 75%
-        } elseif ($progress > 0) {
-            $progressClass = 'bg-red-500'; // Rouge pour moins de 50%
-        }
-        ?>
-        <div class="flex space-x-4"> <!-- Conteneur flex pour aligner les progressions côte à côte -->
-            <div class="w-32 bg-gray-200 rounded">
-                <div class="text-xs font-medium text-white text-center p-0.5 leading-none rounded <?= $progressClass ?>" 
-                    style="width: <?= $progress ?>%">
-                    <?= round($progress) ?>%
-                </div>
-            </div>
-            <div class="text-sm text-gray-600 mt-2">
-                <?= $completedTasks ?> / <?= $totalTasks ?> tâches terminées
-            </div>
-        </div>
-    </td>
-</tr>
 
-<?php endforeach; ?>
 
                 <tr>
                     <th class="px-4 py-2">ID</th>

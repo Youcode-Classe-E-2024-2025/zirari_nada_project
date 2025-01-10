@@ -88,7 +88,13 @@ class Project
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
    
+    public function hasTasks($projectId) {
+        $query = $this->pdo->prepare("SELECT COUNT(*) AS task_count FROM tasks WHERE project_id = :project_id");
+        $query->execute(['project_id' => $projectId]);
+        $result = $query->fetch();
 
+        return $result['task_count'] > 0; // Retourne true si des tâches existent
+    }
     // Récupérer un projet par son ID
     public function getProjectById($id)
     {
