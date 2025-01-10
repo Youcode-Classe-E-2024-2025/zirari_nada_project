@@ -28,7 +28,7 @@ $projects = $projectManager->getProjectsByVisibility('public');
                 <a href="login.php" class="text-white hover:text-gray-200">Login</a>
             </div>
             <div>
-                <a href="signu.php" class="text-white hover:text-gray-200">Sign UP !</a>
+                <a href="signup.php" class="text-white hover:text-gray-200">Sign UP !</a>
             </div>
         </div>
     </nav>
