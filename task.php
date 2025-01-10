@@ -78,5 +78,25 @@ class Task
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
+    public function deleteTask($taskId)
+{
+    try {
+        $query = "DELETE FROM tasks WHERE id = :task_id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0) {
+            echo json_encode(['success' => true, 'message' => 'Tâche supprimée avec succès.']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Aucune tâche trouvée avec cet ID.']);
+        }
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Erreur : ' . $e->getMessage()]);
+    }
+}
+
 }
 ?>

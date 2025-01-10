@@ -259,8 +259,8 @@ $users = $userManager->getAllUsers();
                             </div>
                         </td>
                         <td class="px-4 py-2">
-                <button class="delete-task bg-red-400 rounded px-1 py-1" data-id="<?= htmlspecialchars($task['task_id']) ?>">Supprimer</button>
-            </td>
+        <button class="delete-task bg-red-400 rounded px-1 py-1" data-id="<?= htmlspecialchars($task['task_id']) ?>">Supprimer</button>
+    </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -427,9 +427,9 @@ $users = $userManager->getAllUsers();
         </div>
     </div>
     <script>
-      document.querySelectorAll('.delete-task').forEach(button => {
+   document.querySelectorAll('.delete-task').forEach(button => {
     button.addEventListener('click', function () {
-        const taskId = this.dataset.id; // Assurez-vous que l'attribut data-id existe
+        const taskId = this.dataset.id; // Récupération de l'ID de tâche
 
         if (!taskId) {
             alert('ID de tâche manquant.');
@@ -444,7 +444,12 @@ $users = $userManager->getAllUsers();
                 },
                 body: JSON.stringify({ task_id: taskId })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur réseau.');
+                }
+                return response.json();
+            })
             .then(data => {
                 alert(data.message);
                 if (data.success) {
@@ -453,11 +458,12 @@ $users = $userManager->getAllUsers();
             })
             .catch(error => {
                 console.error('Erreur :', error);
-                alert('Une erreur est survenue.');
+                alert('Une erreur est survenue. Veuillez réessayer plus tard.');
             });
         }
     });
 });
+
 
        // Gestion du modal pour projet
         const openModalBtn = document.getElementById('openModalBtn');
