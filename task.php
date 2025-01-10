@@ -64,7 +64,13 @@ class Task
         // Retourner les résultats
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
+    public function getTasksByProjectId($projectId) {
+        $query = "SELECT * FROM tasks WHERE project_id = :projectId";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute(['projectId' => $projectId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
     // Récupérer toutes les tâches
     public function getAllTasks()
     {

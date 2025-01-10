@@ -26,7 +26,21 @@ $pdo = Database::getInstance()->getConnection();
 $stmt = $pdo->prepare($query);
 $stmt->execute();
 $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+//modifier un projet
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['description'], $_POST['project_id'])) {
+    $name = htmlspecialchars($_POST['name']);
+    $description = htmlspecialchars($_POST['description']);
+    $projectId = (int)$_POST['project_id'];
+    $visibility = $_POST['visibility'] ?? 'private';
+    $deadline = $_POST['deadline'] ?? null;
+    $createdBy = $_POST['created_by'] ?? null;
 
+    $projectManager->updateProject($projectId, $name, $description, $visibility, $deadline, $createdBy);
+
+    // Redirection après modification
+    header("Location: dashboardChef.php");
+    exit;
+}
 // Ajouter un projet
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['description'], $_POST['visibility'], $_POST['deadline'], $_POST['created_by'])) {
     $name = htmlspecialchars($_POST['name']);
@@ -167,13 +181,10 @@ $users = $userManager->getAllUsers();
                 </form>
             </div>
         </div>
-        <div class="w-20 ml-80 bg-gray-200 rounded">
-    <div class="bg-green-500 text-xs font-medium text-white text-center p-0.5 leading-none rounded" 
-         style="width: <?= $progress ?>%">
-        <?= round($progress) ?>%
-    </div>
-</div>
-<a href="project_details.php?project_id=<?= $project['id'] ?>" 
+      
+
+
+<a href="project_details.php?project_id=<?= htmlspecialchars( $project['id'] )?>" 
    class="text-blue-500 underline">Voir les détails</a>
   <!-- Tableau des progressions des tâches -->
   <h2 class="text-xl font-bold mt-6 mb-4">Progression des Tâches</h2>
@@ -316,9 +327,11 @@ $users = $userManager->getAllUsers();
                                 ?>
                             </td>
                             <td class="px-4 py-2 flex items-center space-x-2">
-    <a href="edit.php?id=<?= $project['id'] ?>" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
-        Modifier
-    </a>
+                            <button 
+    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" 
+    onclick="openModal(<?= htmlspecialchars(json_encode($project)) ?>)">
+    Modifier
+</button>
     <a href="?delete_id=<?= $project['id'] ?>" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')">
         Supprimer
     </a>
@@ -388,7 +401,42 @@ $users = $userManager->getAllUsers();
             </form>
         </div>
     </div>
-
+ <!-- Modal pour editer -->
+ <div id="editModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded shadow p-6 w-1/2">
+            <h2 class="text-xl font-bold mb-4">Modifier le Projet</h2>
+            <form method="POST" action="">
+                <input type="hidden" id="project_id" name="project_id">
+                <div class="mb-4">
+                    <label for="name" class="block text-gray-700">Nom du Projet :</label>
+                    <input type="text" id="name" name="name" required class="w-full border border-gray-300 rounded p-2">
+                </div>
+                <div class="mb-4">
+                    <label for="description" class="block text-gray-700">Description :</label>
+                    <textarea id="description" name="description" rows="4" required class="w-full border border-gray-300 rounded p-2"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="visibility" class="block text-gray-700">Visibilité :</label>
+                    <select id="visibility" name="visibility" class="w-full border border-gray-300 rounded p-2">
+                        <option value="private">Privé</option>
+                        <option value="public">Public</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="deadline" class="block text-gray-700">Date limite :</label>
+                    <input type="date" id="deadline" name="deadline" class="w-full border border-gray-300 rounded p-2">
+                </div>
+                <div class="mb-4">
+                    <label for="created_by" class="block text-gray-700">Chef de Projet (ID) :</label>
+                    <input type="number" id="created_by" name="created_by" required class="w-full border border-gray-300 rounded p-2">
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" onclick="closeModal()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mr-2">Annuler</button>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Sauvegarder</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script>
        document.addEventListener('DOMContentLoaded', function () {
     const deleteButtons = document.querySelectorAll('.delete-task');
@@ -469,6 +517,21 @@ $users = $userManager->getAllUsers();
                 addTaskModal.classList.add('hidden');
             }
         });
+
+        function openModal(project) {
+    document.getElementById('editModal').classList.remove('hidden');
+    document.getElementById('project_id').value = project.id || '';
+    document.getElementById('name').value = project.name ;
+    document.getElementById('description').value = project.description || '';
+    document.getElementById('visibility').value = project.visibility || 'private';
+    document.getElementById('deadline').value = project.deadline || '';
+    document.getElementById('created_by').value = project.created_by || '';
+}
+
+
+        function closeModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
